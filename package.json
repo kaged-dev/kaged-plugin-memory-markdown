@@ -23,7 +23,7 @@
 		"format": "biome check --write ."
 	},
 	"dependencies": {
-		"@kaged/utils": "^0.0.1"
+		"@kaged/utils": "^0.0.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.16",
