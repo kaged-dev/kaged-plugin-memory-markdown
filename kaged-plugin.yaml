@@ -1,0 +1,263 @@
+# kaged-plugin.yaml — @kaged/memory-markdown
+# Per docs/specs/plugins/memory-markdown.md
+name: memory-markdown
+version: 0.1.0
+kaged_api: 1
+description: "Markdown-file-backed agent memory — kitchen-sink reference plugin."
+author: kaged
+license: MIT
+homepage: https://github.com/kaged-dev/kaged-plugin-memory-markdown
+
+command:
+  - /usr/bin/env
+  - bun
+  - ./src/main.ts
+
+env:
+  LOG_LEVEL: info
+
+capabilities:
+  # The plugin needs to read/write its configured store directory.
+  # The actual path is resolved at runtime from config.store; the cage policy
+  # is constructed by the host with the resolved path.
+  - kaged:storage:read
+  - "net:[]"
+
+roles:
+  - observer
+
+hooks:
+  - on_session_start
+  - on_session_idle
+  - pre_compact
+  - post_compact
+
+tools:
+  - name: retain
+    description: >-
+      Store information in long-term memory. Use this to remember important
+      facts, user preferences, project context, decisions, and anything worth
+      recalling in future sessions. Be specific — include who, what, when, and
+      why.
+    parameters_schema:
+      type: object
+      properties:
+        content:
+          type: string
+          description: The information to remember.
+        context:
+          type: string
+          description: Optional context about where this came from.
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags applied to this memory entry.
+      required: [content]
+
+  - name: recall
+    description: >-
+      Search long-term memory for relevant information. Use this proactively
+      before answering questions about past conversations, user preferences,
+      project history, or any topic where prior context would help.
+    parameters_schema:
+      type: object
+      properties:
+        query:
+          type: string
+          description: Natural-language search query.
+        tags:
+          type: array
+          items:
+            type: string
+          description: Filter results to entries with at least one of these tags.
+        max_results:
+          type: integer
+          description: Max entries to return. Default 10.
+          minimum: 1
+          maximum: 50
+      required: [query]
+
+  - name: forget
+    description: >-
+      Delete a specific memory entry by ID. Use this when the agent determines
+      a memory is outdated, incorrect, or no longer relevant. Idempotent —
+      forgetting a non-existent entry is not an error.
+    parameters_schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The memory entry ID to delete.
+      required: [id]
+
+  - name: list_tags
+    description: >-
+      List all unique tags across memory entries. Use this to discover what
+      categories of information have been stored, or to help the agent choose
+      consistent tags for new retains.
+    parameters_schema:
+      type: object
+      properties: {}
+
+  # NB: no `reflect` tool. See docs/specs/plugins/memory-markdown.md § "memory-markdown.reflect — NOT REGISTERED".
+
+methods: []
+
+config_schema:
+  type: object
+  properties:
+    isolation:
+      type: string
+      enum: [agent, project]
+      default: agent
+      description: "Per-agent or per-project memory scope."
+    store:
+      type: string
+      default: "config:/memory"
+      description: >-
+        Where memory files are stored. Accepts URI prefixes `config:/`
+        (operator-local) or `project:/` (in-project, committed if not
+        gitignored).
+    tags:
+      type: array
+      items:
+        type: string
+      description: "Default tags applied to every retain operation."
+    retain_on_session_idle:
+      type: boolean
+      default: true
+      description: "If false, the idle hook is a no-op even if subscribed."
+    inject_on_session_start_max_entries:
+      type: integer
+      default: 10
+      minimum: 0
+      maximum: 100
+      description: "How many recent memory entries to inject on session start."
+    max_content_bytes:
+      type: integer
+      default: 102400
+      minimum: 1024
+      maximum: 10485760
+      description: "Max size in bytes for a single retain content. Default 100KB."
+    fact_max_length:
+      type: integer
+      default: 200
+      minimum: 0
+      maximum: 1000
+      description: "Content shorter than this (single-line, no markdown) also gets appended to facts.md."
+    inject_tag_hint:
+      type: boolean
+      default: true
+      description: >-
+        If true, on_session_start injection includes a line listing known tags
+        so the agent uses consistent labeling.
+    score_recency_24h:
+      type: integer
+      default: 2
+      minimum: 0
+      maximum: 10
+      description: "Recency boost for entries created within 24h."
+    score_recency_7d:
+      type: integer
+      default: 1
+      minimum: 0
+      maximum: 10
+      description: "Recency boost for entries created within 7 days."
+    score_tag_exact:
+      type: integer
+      default: 3
+      minimum: 0
+      maximum: 10
+      description: "Boost for tag exact-match hits."
+    debug:
+      type: boolean
+      default: false
+      description: "Enable verbose stderr logging."
+    store_description:
+      type: string
+      default: ""
+      description: "Human-readable description of this memory store. Included in the README."
+    custom_inject_header:
+      type: string
+      default: "Known about this project:"
+      description: "Override the default header for session-start injection."
+  additionalProperties: false
+
+system_config_schema:
+  type: object
+  properties:
+    encryption_key:
+      type: string
+      description: >-
+        Optional encryption key for memory content. When set, memory files are
+        encrypted at rest with AES-256-GCM. Not implemented in v0 — reserved
+        to demonstrate system_config_schema usage (secrets that don't go in git).
+  additionalProperties: false
+
+knobs:
+  store:
+    type: path
+    label: "Storage location"
+    description: "Where memory files live on disk."
+    prefixes: ["config:", "project:"]
+    default: "config:/memory"
+    binds_to: "config.store"
+
+  isolation:
+    type: enum
+    label: "Isolation scope"
+    description: "Per-agent or per-project memory."
+    values: [agent, project]
+    labels:
+      agent: "Per agent (recommended)"
+      project: "Shared across agents in this project"
+    default: agent
+    binds_to: "config.isolation"
+
+  retain_on_session_idle:
+    type: boolean
+    label: "Auto-retain on session idle"
+    description: "Save the transcript when the session goes idle."
+    default: true
+    binds_to: "config.retain_on_session_idle"
+
+  inject_on_session_start_max_entries:
+    type: int_range
+    label: "Inject N entries on session start"
+    description: "How many recent memory entries to recall at session start."
+    min: 0
+    max: 50
+    step: 1
+    default: 10
+    binds_to: "config.inject_on_session_start_max_entries"
+
+  store_description:
+    type: text
+    label: "Store description"
+    description: "A human-readable description of this memory store. Included in the README."
+    max_length: 200
+    default: ""
+    binds_to: "config.store_description"
+
+  score_tag_exact:
+    type: range
+    label: "Tag exact-match boost"
+    description: "Score boost when a query token exactly matches a tag."
+    min: 0
+    max: 10
+    step: 0.5
+    default: 3
+    binds_to: "config.score_tag_exact"
+
+  custom_inject_header:
+    type: multiline
+    label: "Custom injection header"
+    description: "Override the default 'Known about this project:' header for session-start injection."
+    max_length: 500
+    default: "Known about this project:"
+    binds_to: "config.custom_inject_header"
+
+shutdown_timeout_sec: 5
+health_interval_sec: 30
+hook_timeout_sec: 10
