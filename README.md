@@ -1,8 +1,20 @@
-# @kaged/memory-markdown
+<div align="center">
 
-Markdown-file-backed agent memory — the **kaged reference plugin**.
+<img src="https://kaged.dev/hero.svg" alt="kaged" width="100%" />
 
-This is the canonical example of a fully-featured kaged project plugin. If kaged adds new project-plugin capabilities (new hook types, knob types, config features, etc.), this plugin is updated to demonstrate them. If you're building a project plugin, start here.
+# 影 @kaged/memory-markdown
+
+**shadow ops for your `[memory]`**
+
+Markdown-file-backed agent memory for [kaged](https://kaged.dev) — every entry a plain markdown file with YAML frontmatter, searchable by keyword + recency + tag scoring. The canonical **reference plugin**: if you're building a kaged project plugin, start here.
+
+[![npm](https://img.shields.io/npm/v/@kaged/memory-markdown?color=FFB000&label=npm&labelColor=0A0A0B)](https://www.npmjs.com/package/@kaged/memory-markdown)
+[![license](https://img.shields.io/badge/license-MIT-FF2E63?labelColor=0A0A0B)](#license)
+[![plugin](https://img.shields.io/badge/plugin-project%20%C2%B7%20observer-00E0FF?labelColor=0A0A0B)](#what-it-does)
+
+</div>
+
+---
 
 ## What it does
 
@@ -142,6 +154,14 @@ tsc --noEmit      # typecheck
 
 Every file is plain markdown with YAML frontmatter. The operator can read, edit, diff, or commit any of it.
 
+---
+
 ## License
 
-MIT
+MIT © the kaged project
+
+<div align="center">
+
+`[kaged]` · [kaged.dev](https://kaged.dev) · *sanctioned edge, sacred code*
+
+</div>

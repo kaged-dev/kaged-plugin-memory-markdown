@@ -1,7 +1,7 @@
 # kaged-plugin.yaml — @kaged/memory-markdown
 # Per docs/specs/plugins/memory-markdown.md
 name: memory-markdown
-version: 0.1.0
+version: 0.1.1
 kaged_api: 1
 description: "Markdown-file-backed agent memory — kitchen-sink reference plugin."
 author: kaged
