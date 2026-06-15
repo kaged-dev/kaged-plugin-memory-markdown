@@ -1,7 +1,7 @@
 {
 	"name": "@kaged/plugin-memory-markdown",
 	"description": "Reference project plugin for agent memory — markdown-based entry storage with keyword scoring, recency boost, tag filtering, and auto-facts aggregation",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"license": "MIT",
 	"repository": {
 		"type": "git",

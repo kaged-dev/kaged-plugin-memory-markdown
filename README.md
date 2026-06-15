@@ -2,13 +2,13 @@
 
 <img src="https://kaged.dev/hero.svg" alt="kaged" width="100%" />
 
-# 影 @kaged/memory-markdown
+# 影 @kaged/plugin-memory-markdown
 
 **shadow ops for your `[memory]`**
 
 Markdown-file-backed agent memory for [kaged](https://kaged.dev) — every entry a plain markdown file with YAML frontmatter, searchable by keyword + recency + tag scoring. The canonical **reference plugin**: if you're building a kaged project plugin, start here.
 
-[![npm](https://img.shields.io/npm/v/@kaged/memory-markdown?color=FFB000&label=npm&labelColor=0A0A0B)](https://www.npmjs.com/package/@kaged/memory-markdown)
+[![npm](https://img.shields.io/npm/v/@kaged/plugin-memory-markdown?color=FFB000&label=npm&labelColor=0A0A0B)](https://www.npmjs.com/package/@kaged/plugin-memory-markdown)
 [![license](https://img.shields.io/badge/license-MIT-FF2E63?labelColor=0A0A0B)](#license)
 [![plugin](https://img.shields.io/badge/plugin-project%20%C2%B7%20observer-00E0FF?labelColor=0A0A0B)](#what-it-does)
 
@@ -28,7 +28,7 @@ Zero-credentials, file-based memory for kaged agents. Every memory entry is a ma
 - **`on_session_idle`** — auto-save session transcript
 - **`on_compact`** — preserve compacted messages on disk, inject relevant context
 
-This is the **reference floor** — the simplest credible memory backend. The ceiling is `@kaged/memory-hindsight` (vector-graph-temporal search via the Hindsight API).
+This is the **reference floor** — the simplest credible memory backend. The ceiling is `@kaged/plugin-memory-hindsight` (vector-graph-temporal search via the Hindsight API).
 
 ## Why it's the reference plugin
 
@@ -55,7 +55,7 @@ When kaged adds new plugin features, this plugin gets updated to showcase them. 
 # .kaged/project.yaml
 plugins:
   memory:
-    package: "@kaged/memory-markdown"
+    package: "@kaged/plugin-memory-markdown"
 ```
 
 That's it. No API keys, no external services. Memory files land in `~/.local/share/kaged/memory/` by default.
@@ -65,7 +65,7 @@ That's it. No API keys, no external services. Memory files land in `~/.local/sha
 Override in `local.toml`:
 
 ```toml
-[plugins."@kaged/memory-markdown".system_config]
+[plugins."@kaged/plugin-memory-markdown".system_config]
 encryption_key = "..."  # v0 placeholder — demonstrates system_config
 ```
 
@@ -75,7 +75,7 @@ encryption_key = "..."  # v0 placeholder — demonstrates system_config
 # .kaged/project.yaml
 plugins:
   memory:
-    package: "@kaged/memory-markdown"
+    package: "@kaged/plugin-memory-markdown"
     config:
       isolation: project          # share memory across agents
       store: "project:/memory"    # store inside project dir (committable)
